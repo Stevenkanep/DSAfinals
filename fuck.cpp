@@ -277,8 +277,11 @@ void RentCostume() {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // RENT COSTUME (QUEUE) Status: Okay
+// to test Sheena
 
 void CostumeUnavailable() {
+    char choice;
+
     setColor(12);
     cout << "\n!! Sorry, the selected costume is currently rented out. !!\n";
     setColor(14);
@@ -286,7 +289,22 @@ void CostumeUnavailable() {
     setColor(13);
     cout << ">> Would you like to pick another date or costume? (Y/N): ";
     setColor(15);
-    pauseWithSpace();
+    cin >> choice;
+
+    if (choice == 'Y' || choice == 'y') {
+        setColor(10);
+        cout << "\n>> Returning to costume rental menu...\n";
+        pauseWithSpace();
+        RentCostume();  // Assumes user wants to retry renting
+    } else if (choice == 'N' || choice == 'n') {
+        setColor(11);
+        cout << "\n>> Returning to main menu...\n";
+        pauseWithSpace();
+    } else {
+        setColor(12);
+        cout << "\n!! Invalid input. Returning to main menu...\n";
+        pauseWithSpace();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
