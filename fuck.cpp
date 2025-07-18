@@ -55,6 +55,18 @@ void displayCostume() {
     file.close();
 }
 
+void displayRentals() {
+	setColor(11);
+    ifstream file("Rentals.txt");
+    string line;
+    int count = 1;
+    while(getline(file,line)){
+        cout << count << line << endl;
+        count++;
+    }
+    file.close();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // COSTUME MAIN MENU: OKAY
 
@@ -81,6 +93,7 @@ void CostumeList() {
 
 void AddCostume(){
 	char costume[20], category[20], size[20];
+	int ID;
 	float price;
 	
 	setColor(14);
@@ -90,12 +103,17 @@ void AddCostume(){
     setColor(13);
     
     cout << "Costume Name: ";
+    cin.ignore();
 	cin.getline(costume, 20);
 	
     cout << "Category: ";
 	cin.getline(category, 20);
 	
+	cout << "Costume ID: ";
+	cin >> ID;
+	
     cout << "Size: ";
+    cin.ignore();
 	cin.getline(size, 20);
 	
     cout << "Rental Price per day: ";
@@ -110,6 +128,7 @@ void AddCostume(){
     if (file.is_open()){
         file << ": | " << "Name: " << costume << "\t | ";
         file << "Category: " << category << "\t | ";
+        file << "ID: " << ID << " | ";
         file << "Size: " << size << " | ";
         file << "Price: $" << price << "/day | Available: Yes" << endl;
         file.close();
@@ -207,15 +226,13 @@ void RentCostume() {
 	    pauseWithSpace();
 	    
 	    ofstream file;
-		file.open("Costumes.txt", fstream::app);
+		file.open("Rentals.txt", fstream::app);
 	    if (file.is_open()){
 	        file << ": | " << "Customer: " << Rental[front].name << "\t | ";
-	        file << "Costume: " << category << "\t | ";
-	        file << "Rental Date: " << size << " | ";
-	        file << "Price: $" << price << "/day | Available: Yes" << endl;
+	        file << "Costume: " << Rental[front].ID << "\t | ";
+	        file << "Rental Date: " << Rental[front].date << endl;
 	        file.close();
-	    }
-	    else {
+	    } else {
 	        cout << "\n";
 	    }
 	} else {
@@ -244,6 +261,16 @@ void RentCostume() {
 	    cout << ">> Thank you, enjoy your costume!\n";
 	    pauseWithSpace();
 		
+		ofstream file;
+    	file.open("Rentals.txt", fstream::app);
+		if (file.is_open()){
+	        file << ": | " << "Customer: " << Rental[front].name << "\t | ";
+	        file << "Costume: " << Rental[front].ID << "\t | ";
+	        file << "Rental Date: " << Rental[front].date << endl;
+	        file.close();
+	    } else {
+	        cout << "\n";
+	    }
 	}
 	
 }
@@ -278,7 +305,7 @@ void ReturnCostume(){
     line_number;
   
     fstream read_file;
-    read_file.open("Costumes.txt");
+    read_file.open("Rentals.txt");
     if (read_file.fail())
     {
         cout << "Error opening file." << endl;
@@ -302,7 +329,7 @@ void ReturnCostume(){
     	pauseWithSpace();
     }
     ofstream write_file;
-    write_file.open("Costumes.txt");
+    write_file.open("Rentals.txt");
     if (write_file.fail())
     {
         cout << "Error opening file." << endl;
@@ -315,23 +342,14 @@ void ReturnCostume(){
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// RENT COSTUME (QUEUE) Status: NOT OKAY
+// RENTALS LIST: OKAY
 
 void RentalList() {
     setColor(14);
     cout << "\n==============+ CURRENT RENTALS +===============\n";
 
     setColor(15);
-    cout << "Customer: "; setColor(14); cout << "Mae Anne        ";
-    setColor(15); cout << "| Costume: "; setColor(11); cout << "Peter Pan   ";
-    setColor(15); cout << "| Rented: "; setColor(14); cout << "2025-10-24 ";
-    setColor(15); cout << "| Return: "; setColor(14); cout << "2025-10-27\n";
-
-    setColor(15);
-    cout << "Customer: "; setColor(14); cout << "Antonette Marie ";
-    setColor(15); cout << "| Costume: "; setColor(11); cout << "Cinderella  ";
-    setColor(15); cout << "| Rented: "; setColor(14); cout << "2025-10-25 ";
-    setColor(15); cout << "| Return: "; setColor(14); cout << "2025-10-28\n";
+    displayRentals();
 
     setColor(14);
     cout << "---------------------------------------------------\n";
