@@ -1,4 +1,3 @@
-// Refactored ByteStyle Rental Shop with added structures and classes
 #include <iostream>
 #include <fstream>
 #include <windows.h>
@@ -15,190 +14,60 @@ void pauseWithSpace() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// STRUCTS & CLASSES
+// STRUCT
 
-// Represents a costume in the inventory
-struct Costume {
-    string name;
-    string category;
+struct NodeQueue {
+    char name[20];
     int ID;
-    string size;
-    float price;
-    bool available;
+    char date[20];
 };
 
-// Manages costume inventory operations
-class CostumeManager {
-private:
-    vector<Costume> costumes;
-    const string filename = "Costumes.txt";
-public:
-    CostumeManager() { loadFromFile(); }
+int front = -1;
+int rear = -1;
 
-    void loadFromFile() {
-        costumes.clear();
-        ifstream file(filename);
-        if (!file.is_open()) return;
-        string line;
-        while (getline(file, line)) {
-            // parsing assuming same format as saved
-            Costume c;
-            // naive parsing; could improve with stringstream
-            size_t pos;
-            c.available = (line.find("Available: Yes") != string::npos);
-            // extract fields
-            pos = line.find("Name: ");
-            c.name = line.substr(pos + 6, line.find("\t", pos) - (pos + 6));
-            pos = line.find("Category: ");
-            c.category = line.substr(pos + 10, line.find("\t", pos) - (pos + 10));
-            pos = line.find("ID: ");
-            c.ID = stoi(line.substr(pos + 4, line.find(" |", pos) - (pos + 4)));
-            pos = line.find("Size: ");
-            c.size = line.substr(pos + 6, line.find(" |", pos) - (pos + 6));
-            pos = line.find("Price: $");
-            c.price = stof(line.substr(pos + 8, line.find("/day", pos) - (pos + 8)));
-            costumes.push_back(c);
-        }
-        file.close();
-    }
+NodeQueue Rental[5];
+int size = 5;
 
-    void saveToFile() {
-        ofstream file(filename);
-        if (!file.is_open()) return;
-        for (auto &c : costumes) {
-            file << ": | Name: " << c.name << "\t | Category: " << c.category
-                 << "\t | ID: " << c.ID << " | Size: " << c.size
-                 << " | Price: $" << c.price << "/day | Available: "
-                 << (c.available ? "Yes" : "No") << endl;
-        }
-        file.close();
+bool isEmpty() {
+    if (front == -1) {
+        return true;
     }
-
-    void displayCostume() {
-        setColor(11);
-        int count = 1;
-        for (auto &c : costumes) {
-            cout << count++ << ": Name: " << c.name
-                 << " | Category: " << c.category
-                 << " | ID: " << c.ID
-                 << " | Size: " << c.size
-                 << " | Price: $" << c.price << "/day"
-                 << " | Available: " << (c.available ? "Yes" : "No")
-                 << endl;
-        }
-    }
-
-    void addCostume(const Costume &c) {
-        costumes.push_back(c);
-        saveToFile();
-    }
-
-    void removeCostume(int index) {
-        if (index >= 0 && index < (int)costumes.size()) {
-            costumes.erase(costumes.begin() + index);
-            saveToFile();
-        }
-    }
-
-    bool isAvailable(int id) {
-        for (auto &c : costumes)
-            if (c.ID == id)
-                return c.available;
-        return false;
-    }
-
-    void setAvailability(int id, bool av) {
-        for (auto &c : costumes)
-            if (c.ID == id)
-                c.available = av;
-        saveToFile();
-    }
+    else return false;
 };
 
-// Represents a rental entry
-struct RentalEntry {
-    string customer;
-    int costumeID;
-    string date;
+bool isFull() {
+    if (rear >= size - 1) {
+        return true;
+    }
+    else return false;
 };
-
-// Manages rental queue operations
-class RentalManager {
-private:
-    vector<RentalEntry> rentals;
-    const string filename = "Rentals.txt";
-public:
-    RentalManager() { loadFromFile(); }
-
-    void loadFromFile() {
-        rentals.clear();
-        ifstream file(filename);
-        if (!file.is_open()) return;
-        string line;
-        while (getline(file, line)) {
-            RentalEntry r;
-            size_t pos;
-            pos = line.find("Customer: ");
-            r.customer = line.substr(pos + 10, line.find("\t", pos) - (pos + 10));
-            pos = line.find("Costume: ");
-            r.costumeID = stoi(line.substr(pos + 10, line.find("\t", pos) - (pos + 10)));
-            pos = line.find("Rental Date: ");
-            r.date = line.substr(pos + 13);
-            rentals.push_back(r);
-        }
-        file.close();
-    }
-
-    void saveToFile() {
-        ofstream file(filename);
-        if (!file.is_open()) return;
-        for (auto &r : rentals) {
-            file << ": | Customer: " << r.customer << "\t | Costume: " << r.costumeID
-                 << "\t | Rental Date: " << r.date << endl;
-        }
-        file.close();
-    }
-
-    void displayRentals() {
-        setColor(11);
-        int count = 1;
-        for (auto &r : rentals) {
-            cout << count++ << ": Customer: " << r.customer
-                 << " | Costume: " << r.costumeID
-                 << " | Rental Date: " << r.date << endl;
-        }
-    }
-
-    void addRental(const RentalEntry &r) {
-        rentals.push_back(r);
-        saveToFile();
-    }
-
-    void removeRental(int index) {
-        if (index >= 0 && index < (int)rentals.size()) {
-            rentals.erase(rentals.begin() + index);
-            saveToFile();
-        }
-    }
-
-    bool isRented(int id) {
-        for (auto &r : rentals)
-            if (r.costumeID == id) return true;
-        return false;
-    }
-};
-
-// Global managers
-CostumeManager costumeMgr;
-RentalManager rentalMgr;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // DISPLAY COSTUMES: OKAY
-// (now handled by CostumeManager)
 
-////////////////////////////////////////////////////////////////////////////////////////
-// DISPLAY RENTALS: OKAY
-// (now handled by RentalManager)
+void displayCostume() {
+    setColor(11);
+    ifstream file("Costumes.txt");
+    string line;
+    int count = 1;
+    while (getline(file, line)) {
+        cout << count << line << endl;
+        count++;
+    }
+    file.close();
+}
+
+void displayRentals() {
+    setColor(11);
+    ifstream file("Rentals.txt");
+    string line;
+    int count = 1;
+    while (getline(file, line)) {
+        cout << count << line << endl;
+        count++;
+    }
+    file.close();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // COSTUME MAIN MENU: OKAY
@@ -207,7 +76,8 @@ void CostumeList() {
     setColor(14);
     cout << "\n===============+ COSTUME INVENTORY +===============\n";
 
-    costumeMgr.displayCostume();
+    setColor(11);
+    displayCostume();
 
     setColor(14);
     cout << "---------------------------------------------------\n";
@@ -221,48 +91,201 @@ void CostumeList() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// ADD COSTUME: OKAY (via manager)
+// ADD COSTUME: OKAY
 
 void AddCostume() {
-    Costume c;
+    char costume[20], category[20], size[20];
+    int ID;
+    float price;
+
     setColor(14);
     cout << "\n===============+ ADD NEW COSTUME +===============\n";
     setColor(15);
     cout << "Enter costume details:\n";
     setColor(13);
-    cout << "Costume Name: "; cin.ignore(); getline(cin, c.name);
-    cout << "Category: "; getline(cin, c.category);
-    cout << "Costume ID: "; cin >> c.ID;
-    cout << "Size: "; cin.ignore(); getline(cin, c.size);
-    cout << "Rental Price per day: "; cin >> c.price;
-    c.available = true;
-    costumeMgr.addCostume(c);
+
+    cout << "Costume Name: ";
+    cin.ignore();
+    cin.getline(costume, 20);
+
+    cout << "Category: ";
+    cin.getline(category, 20);
+
+    cout << "Costume ID: ";
+    cin >> ID;
+
+    cout << "Size: ";
+    cin.ignore();
+    cin.getline(size, 20);
+
+    cout << "Rental Price per day: ";
+    cin >> price;
+
     setColor(11);
     cout << "\n++ Costume added successfully! ++\n";
     setColor(15);
+
+    ofstream file;
+    file.open("Costumes.txt", fstream::app);
+    if (file.is_open()) {
+        file << ": | " << "Name: " << costume << "\t | ";
+        file << "Category: " << category << "\t | ";
+        file << "ID: " << ID << " | ";
+        file << "Size: " << size << " | ";
+        file << "Price: $" << price << "/day | Available: Yes" << endl;
+        file.close();
+    }
+    else {
+        cout << "\n";
+    }
     pauseWithSpace();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// REMOVE COSTUME: OKAY (via manager)
+// REMOVE COSTUME: OKAY
 
 void RemoveCostume() {
-    costumeMgr.displayCostume();
+    string filename;
+    int line_number;
+
+    displayCostume();
     setColor(14);
     cout << "\n==============+ REMOVE A COSTUME +==============\n";
     setColor(15);
+    cout << "Remove a costume by list number.\n";
     cout << "Enter list number of costume to remove: ";
-    int idx; cin >> idx;
-    costumeMgr.removeCostume(idx - 1);
-    setColor(11);
-    cout << "\n++ Costume removed successfully! ++\n";
-    setColor(15);
-    pauseWithSpace();
+    cin >> line_number;
+    line_number;
+
+    fstream read_file;
+    read_file.open("Costumes.txt");
+    if (read_file.fail())
+    {
+        cout << "Error opening file." << endl;
+    }
+    vector<string> lines;
+    string line;
+    while (getline(read_file, line))
+        lines.push_back(line);
+    read_file.close();
+    if (line_number > (int)lines.size())
+    {
+        cout << "Line " << line_number;
+        cout << " not in file." << endl;
+        cout << "File has " << lines.size();
+        cout << " lines." << endl;
+    }
+    else {
+        setColor(11);
+        cout << "\n++ Costume returned successfully! ++\n";
+        setColor(10);
+        cout << ">> Thank you for using ByteStyle Rental Shop!\n";
+        pauseWithSpace();
+    }
+    ofstream write_file;
+    write_file.open("Costumes.txt");
+    if (write_file.fail())
+    {
+        cout << "Error opening file." << endl;
+    }
+    line_number--;
+    for (int i = 0; i < (int)lines.size(); i++)
+        if (i != line_number)
+            write_file << lines[i] << endl;
+    write_file.close();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+// RENT COSTUME (QUEUE) Status: Okay
+
+void RentCostume() {
+    if (front == -1) {
+        front++;
+        setColor(14);
+        cout << "\n===============+ RENT A COSTUME +===============\n";
+        setColor(15);
+        cout << "Enter Customer Name: ";
+        setColor(13);
+        cin.ignore();
+        cin.getline(Rental[front].name, 20);
+
+        setColor(15);
+        cout << "\nAvailable Costumes:\n";
+        setColor(11);
+        displayCostume();
+
+        setColor(15);
+        cout << "\nEnter Costume ID to rent: "; setColor(11); cin >> Rental[front].ID;
+        setColor(15);
+        cout << "Enter rental date (YYYY-MM-DD): "; setColor(13); cin >> Rental[front].date;
+
+        setColor(11);
+        cout << "\n++ Costume rented successfully! ++\n";
+        setColor(10);
+        cout << ">> Costume will be added to rental queue.\n";
+        setColor(15);
+        cout << ">> Thank you, enjoy your costume!\n";
+        pauseWithSpace();
+
+        ofstream file;
+        file.open("Rentals.txt", fstream::app);
+        if (file.is_open()) {
+            file << ": | " << "Customer: " << Rental[front].name << "\t | ";
+            file << "Costume: " << Rental[front].ID << "\t | ";
+            file << "Rental Date: " << Rental[front].date << endl;
+            file.close();
+        }
+        else {
+            cout << "\n";
+        }
+    }
+    else {
+        rear++;
+        setColor(14);
+        cout << "\n===============+ RENT A COSTUME +===============\n";
+        setColor(15);
+        cout << "Enter Customer Name: ";
+        setColor(13);
+        cin >> Rental[rear].name;
+
+        setColor(15);
+        cout << "\nAvailable Costumes:\n";
+        setColor(11);
+
+        setColor(15);
+        cout << "\nEnter Costume ID to rent: "; setColor(11); cin >> Rental[rear].ID;
+        setColor(15);
+        cout << "Enter rental date (YYYY-MM-DD): "; setColor(13); cin >> Rental[rear].date;
+
+        setColor(11);
+        cout << "\n++ Costume rented successfully! ++\n";
+        setColor(10);
+        cout << ">> Costume will be added to rental queue.\n";
+        setColor(15);
+        cout << ">> Thank you, enjoy your costume!\n";
+        pauseWithSpace();
+
+        ofstream file;
+        file.open("Rentals.txt", fstream::app);
+        if (file.is_open()) {
+            file << ": | " << "Customer: " << Rental[front].name << "\t | ";
+            file << "Costume: " << Rental[front].ID << "\t | ";
+            file << "Rental Date: " << Rental[front].date << endl;
+            file.close();
+        }
+        else {
+            cout << "\n";
+        }
+    }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// RENT COSTUME with class logic
+// RENT COSTUME (QUEUE) Status: Okay
+// to test Sheena
 
+// Called when a requested costume ID is already rented
 void CostumeUnavailable() {
     char choice;
 
@@ -277,41 +300,67 @@ void CostumeUnavailable() {
 
     if (choice == 'Y' || choice == 'y') {
         pauseWithSpace();
-        RentCostume();
+        RentCostume();      // try renting again
     }
+    // if N or anything else, just fall through back to main menu
     pauseWithSpace();
 }
 
+// RENT COSTUME (QUEUE) with availability check
 void RentCostume() {
+    // 1) compute slot index
+    int slot;
+    if (front == -1) {
+        front = rear = 0;
+    }
+    else {
+        slot = ++rear;
+    }
+    slot = rear;
+
     setColor(14);
     cout << "\n===============+ RENT A COSTUME +===============\n";
     setColor(15);
-    RentalEntry r;
+
+    // 2) clear the input buffer before reading the name
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
     cout << "Enter Customer Name: ";
     setColor(13);
-    cin.ignore(); getline(cin, r.customer);
+    cin.getline(Rental[slot].name, 20);
 
     setColor(15);
     cout << "\nAvailable Costumes:\n";
-    costumeMgr.displayCostume();
+    setColor(11);
+    displayCostume();
 
     setColor(15);
     cout << "\nEnter Costume ID to rent: ";
     setColor(11);
-    cin >> r.costumeID;
+    cin >> Rental[slot].ID;
 
-    if (!costumeMgr.isAvailable(r.costumeID) || rentalMgr.isRented(r.costumeID)) {
-        CostumeUnavailable();
-        return;
+    // 3) check for duplicate rental in the queue
+    for (int i = front; i <= rear; ++i) {
+        if (i != slot && Rental[i].ID == Rental[slot].ID) {
+            // undo our slot increment
+            if (front == rear) {
+                front = rear = -1;
+            }
+            else if (slot == front) {
+                front++;
+            }
+            else {
+                rear--;
+            }
+            CostumeUnavailable();
+            return;
+        }
     }
 
     setColor(15);
     cout << "Enter rental date (YYYY-MM-DD): ";
     setColor(13);
-    cin >> r.date;
-
-    rentalMgr.addRental(r);
-    costumeMgr.setAvailability(r.costumeID, false);
+    cin >> Rental[slot].date;
 
     setColor(11);
     cout << "\n++ Costume rented successfully! ++\n";
@@ -322,25 +371,58 @@ void RentCostume() {
     pauseWithSpace();
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////
-// RETURN COSTUME: OKAY (via manager)
+// RETURN COSTUME (DEQUEUE) Status: NOT OKAY
 
 void ReturnCostume() {
-    rentalMgr.displayRentals();
+    string filename;
+    int line_number;
+
     setColor(14);
     cout << "\n==============+ RETURN A COSTUME +==============\n";
     setColor(15);
-    cout << "Enter list number of rental to return: ";
-    int idx; cin >> idx;
-    int cid = rentalMgr.rentals[idx-1].costumeID;  // access to struct
-    rentalMgr.removeRental(idx-1);
-    costumeMgr.setAvailability(cid, true);
+    cout << "Return a costume by list number.";
+    cout << "Enter list number of customer who would like to return a costume:";
+    cin >> line_number;
+    line_number;
 
-    setColor(11);
-    cout << "\n++ Costume returned successfully! ++\n";
-    setColor(10);
-    cout << ">> Thank you for using ByteStyle Rental Shop!\n";
-    pauseWithSpace();
+    fstream read_file;
+    read_file.open("Rentals.txt");
+    if (read_file.fail())
+    {
+        cout << "Error opening file." << endl;
+    }
+    vector<string> lines;
+    string line;
+    while (getline(read_file, line))
+        lines.push_back(line);
+    read_file.close();
+    if (line_number > (int)lines.size())
+    {
+        cout << "Line " << line_number;
+        cout << " not in file." << endl;
+        cout << "File has " << lines.size();
+        cout << " lines." << endl;
+    }
+    else {
+        setColor(11);
+        cout << "\n++ Costume returned successfully! ++\n";
+        setColor(10);
+        cout << ">> Thank you for using ByteStyle Rental Shop!\n";
+        pauseWithSpace();
+    }
+    ofstream write_file;
+    write_file.open("Rentals.txt");
+    if (write_file.fail())
+    {
+        cout << "Error opening file." << endl;
+    }
+    line_number--;
+    for (int i = 0; i < (int)lines.size(); i++)
+        if (i != line_number)
+            write_file << lines[i] << endl;
+    write_file.close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -351,7 +433,7 @@ void RentalList() {
     cout << "\n==============+ CURRENT RENTALS +===============\n";
 
     setColor(15);
-    rentalMgr.displayRentals();
+    displayRentals();
 
     setColor(14);
     cout << "---------------------------------------------------\n";
@@ -399,20 +481,21 @@ void showMainMenu() {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
+
 int main() {
     int choice, subChoice;
     bool run = true;
 
-    while(run) {
+    while (run) {
         showMainMenu();
         cin >> choice;
 
         if (choice == 1) {
             CostumeList();
             cin >> subChoice;
-            if(subChoice == 1) AddCostume();
-            else if(subChoice == 2) RemoveCostume();
-            else if(subChoice == 3) continue;
+            if (subChoice == 1) AddCostume();
+            else if (subChoice == 2) RemoveCostume();
+            else if (subChoice == 3) continue;
             else {
                 setColor(12);
                 cout << "!! Invalid option. Try again. !!\n";
