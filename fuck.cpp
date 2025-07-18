@@ -279,6 +279,7 @@ void RentCostume() {
 // RENT COSTUME (QUEUE) Status: Okay
 // to test Sheena
 
+// Called when a requested costume ID is already rented
 void CostumeUnavailable() {
     char choice;
 
@@ -287,25 +288,66 @@ void CostumeUnavailable() {
     setColor(14);
     cout << ">> Next available date: 2025-11-01\n";
     setColor(13);
-    cout << ">> Would you like to pick another date or costume? (Y/N): ";
+    cout << ">> Would you like to pick another costume? (Y/N): ";
     setColor(15);
     cin >> choice;
 
     if (choice == 'Y' || choice == 'y') {
-        setColor(10);
-        cout << "\n>> Returning to costume rental menu...\n";
         pauseWithSpace();
-        RentCostume();  // Assumes user wants to retry renting
-    } else if (choice == 'N' || choice == 'n') {
-        setColor(11);
-        cout << "\n>> Returning to main menu...\n";
-        pauseWithSpace();
-    } else {
-        setColor(12);
-        cout << "\n!! Invalid input. Returning to main menu...\n";
-        pauseWithSpace();
+        RentCostume();      // try renting again
     }
+    // if N or anything else, just fall through back to main menu
+    pauseWithSpace();
 }
+
+// RENT COSTUME (QUEUE) with availability check
+void RentCostume() {
+    int slot = (front == -1 ? ++front : ++rear);
+
+    setColor(14);
+    cout << "\n===============+ RENT A COSTUME +===============\n";
+    setColor(15);
+    cout << "Enter Customer Name: ";
+    setColor(13);
+    cin.ignore();
+    cin.getline(Rental[slot].name, 20);
+
+    setColor(15);
+    cout << "\nAvailable Costumes:\n";
+    setColor(11);
+    displayCostume();
+
+    setColor(15);
+    cout << "\nEnter Costume ID to rent: ";
+    setColor(11);
+    cin >> Rental[slot].ID;
+
+    // --- new availability check ---
+    for (int i = front; i <= rear; ++i) {
+        if (i != slot && Rental[i].ID == Rental[slot].ID) {
+            // put the slot index back so we don't “consume” it
+            if (slot == front && front == rear) front = rear = -1;
+            else if (slot == front) front++;
+            else rear--;
+            CostumeUnavailable();
+            return;
+        }
+    }
+
+    setColor(15);
+    cout << "Enter rental date (YYYY-MM-DD): ";
+    setColor(13);
+    cin >> Rental[slot].date;
+
+    setColor(11);
+    cout << "\n++ Costume rented successfully! ++\n";
+    setColor(10);
+    cout << ">> Costume will be added to rental queue.\n";
+    setColor(15);
+    cout << ">> Thank you, enjoy your costume!\n";
+    pauseWithSpace();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // RETURN COSTUME (DEQUEUE) Status: NOT OKAY
