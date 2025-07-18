@@ -14,7 +14,7 @@ void pauseWithSpace() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// RENT COSTUME
+// STRUCT
 
 struct NodeQueue{
 	char name[20];
@@ -41,9 +41,10 @@ bool isFull(){
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// DISPLAY COSTUMES
+// DISPLAY COSTUMES: OKAY
 
 void displayCostume() {
+	setColor(11);
     ifstream file("Costumes.txt");
     string line;
     int count = 1;
@@ -55,7 +56,7 @@ void displayCostume() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// RENT COSTUME
+// COSTUME MAIN MENU: OKAY
 
 void CostumeList() {
     setColor(14);
@@ -76,6 +77,7 @@ void CostumeList() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+// ADD COSTUME: OKAY
 
 void AddCostume(){
 	char costume[20], category[20], size[20];
@@ -88,15 +90,12 @@ void AddCostume(){
     setColor(13);
     
     cout << "Costume Name: ";
-    cin.ignore();
 	cin.getline(costume, 20);
 	
     cout << "Category: ";
-    cin.ignore();
 	cin.getline(category, 20);
 	
     cout << "Size: ";
-    cin.ignore();
 	cin.getline(size, 20);
 	
     cout << "Rental Price per day: ";
@@ -107,14 +106,12 @@ void AddCostume(){
     setColor(15);
 	
     ofstream file;
-    file.open("Costume.txt", fstream::app);
+    file.open("Costumes.txt", fstream::app);
     if (file.is_open()){
-            file << "! " << costume << " ";
-            file << "| " << category << " | ";
-            file << "Size: " << size << " ";
-            file << "(PHP " << price << ") ";
-            break; // Ensures only the newly added node is saved once
-        }
+        file << ": | " << "Name: " << costume << "\t | ";
+        file << "Category: " << category << "\t | ";
+        file << "Size: " << size << " | ";
+        file << "Price: $" << price << "/day | Available: Yes" << endl;
         file.close();
     }
     else {
@@ -123,34 +120,19 @@ void AddCostume(){
     pauseWithSpace();
 }
 
-void AddCostume() {
-    setColor(14);
-    cout << "\n===============+ ADD NEW COSTUME +===============\n";
-    setColor(15);
-    cout << "Enter costume details:\n";
-    setColor(13);
-    cout << "Name: ____________\n";
-    cout << "Category: ____________\n";
-    cout << "Size: ____________\n";
-    cout << "Rental Price per day: ____________\n";
-    setColor(11);
-    cout << "\n++ Costume added successfully! ++\n";
-    setColor(15);
-    pauseWithSpace();
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
-// REMOVE COSTUME (DEQUEUE) Status: NOT OKAY
+// REMOVE COSTUME: OKAY
 
 void RemoveCostume(){
     string filename;
     int line_number;
     
+    displayCostume();
     setColor(14);
-    cout << "\n==============+ RETURN A COSTUME +==============\n";
+    cout << "\n==============+ REMOVE A COSTUME +==============\n";
     setColor(15);
-    cout << "Remove a costume by list number.";
-    cout << "Enter list number of costume to remove:";
+    cout << "Remove a costume by list number.\n";
+    cout << "Enter list number of costume to remove: ";
     cin >> line_number;
     line_number;
   
@@ -223,6 +205,19 @@ void RentCostume() {
 	    setColor(15);
 	    cout << ">> Thank you, enjoy your costume!\n";
 	    pauseWithSpace();
+	    
+	    ofstream file;
+		file.open("Costumes.txt", fstream::app);
+	    if (file.is_open()){
+	        file << ": | " << "Customer: " << Rental[front].name << "\t | ";
+	        file << "Costume: " << category << "\t | ";
+	        file << "Rental Date: " << size << " | ";
+	        file << "Price: $" << price << "/day | Available: Yes" << endl;
+	        file.close();
+	    }
+	    else {
+	        cout << "\n";
+	    }
 	} else {
 		rear++;
 		setColor(14);
@@ -396,7 +391,6 @@ int main() {
         if (choice == 1) {
             CostumeList();
             cin >> subChoice;
-            pauseWithSpace();
             if(subChoice == 1) AddCostume();
             else if(subChoice == 2) RemoveCostume();
             else if(subChoice == 3) continue;
@@ -430,4 +424,3 @@ int main() {
     }
     return 0;
 }
-
