@@ -1,0 +1,2 @@
+ID: 1 | Name: Cinderella	| Category: Disney	| Size: S | Price: $25/day | Available: Yes
+ID: 2 | Name: Peter Pan	| Category: Disney	| Size: L | Price: $30/day | Available: Yes
